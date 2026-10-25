@@ -1,0 +1,37 @@
+name: Compilar sampvoice parcheado
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Descargar codigo fuente v3.1
+        run: |
+          wget -q https://github.com/CyberMor/sampvoice/archive/refs/tags/v3.1.tar.gz -O src.tar.gz
+          tar xzf src.tar.gz
+          mv sampvoice-3.1 src
+
+      - name: Aplicar parche
+        run: python3 patch.py
+
+      - name: Instalar compilador de 32 bits
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq g++-multilib gcc-multilib make binutils
+
+      - name: Compilar el plugin
+        working-directory: src/server
+        run: make
+
+      - name: Publicar sampvoice.so
+        uses: actions/upload-artifact@v4
+        with:
+          name: sampvoice-parcheado
+          path: src/server/sampvoice.so
+          
