@@ -130,3 +130,15 @@ sub("PlayerStore.cpp", OLD_REM, NEW_REM)
 sub("main.cpp", OLD_AL, NEW_AL)
 sub("main.cpp", OLD_AS, NEW_AS)
 print("LISTO: codigo parcheado")
+
+# Faltaba <cstdio> para FILE: con gcc moderno ya no viene incluido de rebote.
+# Sin eso, 'FILE *pRecordingFile' no se declara, sizeof(CPlayer) cambia y salta
+# el static_assert "Invalid CPlayer size".
+OLD_H = '''#include <map>
+#include <pawn/amx/amx.h>'''
+
+NEW_H = '''#include <cstdio>
+#include <map>
+#include <pawn/amx/amx.h>'''
+
+sub("include/ysf/structs.h", OLD_H, NEW_H)
